@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Fiche Client – Gestion</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+    crossorigin=""
+  />
+</head>
+<body class="bg-gray-100 flex flex-col h-screen">
+  <!-- Header / Nav -->
+  <header class="bg-white shadow p-4 flex justify-between items-center">
+    <h1 class="text-2xl font-bold">Gestion des Clients</h1>
+    <nav class="space-x-4">
+      <a href="clients.html"   class="text-gray-600 hover:text-blue-600">Clients</a>
+      <a href="counts.html"    class="text-gray-600 hover:text-blue-600">Par Département</a>
+      <a href="leads.html"     class="text-gray-600 hover:text-blue-600">Leads</a>
+      <a href="manage.html"    class="text-blue-600 font-semibold">Fiche Client</a>
+    </nav>
+  </header>
+
+  <div class="flex-1 grid grid-cols-1 lg:grid-cols-3 overflow-hidden">
+    <!-- Formulaire et tableau -->
+    <aside class="lg:col-span-1 p-6 bg-white overflow-y-auto">
+      <h2 id="formTitle" class="text-xl font-semibold mb-4">Ajouter un client</h2>
+      <form id="clientForm" class="space-y-4">
+        <div>
+          <label class="block font-medium">Prénom</label>
+          <input type="text" id="firstName" class="w-full border rounded px-3 py-2" required />
+        </div>
+        <div>
+          <label class="block font-medium">Nom</label>
+          <input type="text" id="lastName" class="w-full border rounded px-3 py-2" required />
+        </div>
+        <div>
+          <label class="block font-medium">Email</label>
+          <input type="email" id="email" class="w-full border rounded px-3 py-2" required />
+        </div>
+        <div>
+          <label class="block font-medium">Téléphone</label>
+          <input type="tel" id="phone" class="w-full border rounded px-3 py-2" />
+        </div>
+        <div>
+          <label class="block font-medium">Société</label>
+          <input type="text" id="company" class="w-full border rounded px-3 py-2" />
+        </div>
+        <div>
+          <label class="block font-medium mb-1">Départements</label>
+          <div id="departmentsCheckboxes" class="border rounded h-40 overflow-y-auto p-2 grid grid-cols-2 gap-1"></div>
+        </div>
+        <div>
+          <label class="block font-medium">Leads livrés (total)</label>
+          <input type="number" id="leadsDelivered" class="w-full border rounded px-3 py-2 bg-gray-50" value="0" readonly />
+        </div>
+        <div>
+          <label class="block font-medium">Méthode de paiement</label>
+          <select id="paymentMethod" class="w-full border rounded px-3 py-2">
+            <option value="">-- Choisir --</option>
+            <option>Carte bancaire</option>
+            <option>Virement</option>
+            <option>Chèque</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-medium">Type de paiement</label>
+          <select id="paymentType" class="w-full border rounded px-3 py-2">
+            <option value="">-- Choisir --</option>
+            <option>One-shot</option>
+            <option>Abonnement</option>
+          </select>
+        </div>
+        <div class="flex justify-end space-x-2">
+          <button type="reset" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Annuler</button>
+          <button type="submit" id="saveBtn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Enregistrer</button>
+        </div>
+      </form>
+
+      <div class="mt-8 flex justify-between items-center">
+        <h2 class="text-xl font-semibold">Liste des clients</h2>
+        <button id="exportCsv" class="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600">Exporter CSV</button>
+      </div>
+      <table class="w-full text-sm mt-2">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="p-2">Prénom</th><th class="p-2">Nom</th>
+            <th class="p-2">Email</th><th class="p-2">Téléphone</th>
+            <th class="p-2">Société</th><th class="p-2">Dpts</th>
+            <th class="p-2">Leads</th><th class="p-2">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="clientsTableBody"></tbody>
+      </table>
+    </aside>
+
+    <main class="lg:col-span-2">
+      <div id="map" class="w-full h-full"></div>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,10 +1,22 @@
+Here’s la page complète **manage.html** à déposer à la racine de ton site. Elle contient :
+
+* Le **nav** vers toutes tes pages
+* Ta **config Firebase**
+* La **liste intégrale** des 95 départements
+* Le **formulaire** pour ajouter/modifier un client
+* Le **tableau** qui affiche chaque client avec ses départements, leads et actions
+* Le **script** CRUD + coloration de la carte (si tu veux réactiver la carte, ajoute simplement le fetch geojson et L.geoJson comme précédemment)
+
+```html
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
   <title>Fiche Client – Gestion</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Leaflet CSS -->
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
@@ -18,32 +30,49 @@
   <header class="bg-white shadow p-4 flex justify-between items-center">
     <h1 class="text-2xl font-bold">Gestion des Clients</h1>
     <nav class="space-x-4">
-      <a href="index.html"    class="text-gray-600 hover:text-blue-600">Accueil</a>
-      <a href="clients.html"  class="text-gray-600 hover:text-blue-600">Clients</a>
+      <a href="index.html"     class="text-gray-600 hover:text-blue-600">Accueil</a>
+      <a href="clients.html"   class="text-gray-600 hover:text-blue-600">Clients</a>
       <a href="livraison.html" class="text-gray-600 hover:text-blue-600">Livraisons</a>
-      <a href="rapport.html"  class="text-gray-600 hover:text-blue-600">Rapports</a>
-      <a href="manage.html"   class="text-blue-600 font-semibold">Fiche Client</a>
+      <a href="rapport.html"   class="text-gray-600 hover:text-blue-600">Rapports</a>
+      <a href="manage.html"    class="text-blue-600 font-semibold">Fiche Client</a>
     </nav>
   </header>
 
   <div class="flex-1 grid grid-cols-1 lg:grid-cols-3 overflow-hidden">
-
     <!-- FORMULAIRE CLIENT -->
     <aside class="lg:col-span-1 p-6 bg-white overflow-y-auto">
       <h2 id="formTitle" class="text-xl font-semibold mb-4">Ajouter un client</h2>
       <form id="clientForm" class="space-y-4">
-        <!-- champs nom / prénom / etc. -->
-        <label class="block">Prénom<input type="text" id="firstName" required class="w-full border p-2 rounded"></label>
-        <label class="block">Nom    <input type="text" id="lastName"  required class="w-full border p-2 rounded"></label>
-        <label class="block">Email  <input type="email" id="email"    required class="w-full border p-2 rounded"></label>
-        <label class="block">Téléphone<input type="tel" id="phone" class="w-full border p-2 rounded"></label>
-        <label class="block">Société   <input type="text" id="company" class="w-full border p-2 rounded"></label>
-        <label class="block mb-1">Départements</label>
-        <div id="departmentsCheckboxes" class="border rounded h-40 overflow-y-auto p-2 grid grid-cols-2 gap-1">
-          <!-- JS insère ici 95 cases à cocher -->
+        <label class="block">Prénom<br>
+          <input type="text" id="firstName" required class="w-full border p-2 rounded">
+        </label>
+        <label class="block">Nom<br>
+          <input type="text" id="lastName"  required class="w-full border p-2 rounded">
+        </label>
+        <label class="block">Email<br>
+          <input type="email" id="email"    required class="w-full border p-2 rounded">
+        </label>
+        <label class="block">Téléphone<br>
+          <input type="tel" id="phone" class="w-full border p-2 rounded">
+        </label>
+        <label class="block">Société<br>
+          <input type="text" id="company" class="w-full border p-2 rounded">
+        </label>
+
+        <div>
+          <label class="block mb-1 font-medium">Départements</label>
+          <div id="departmentsCheckboxes"
+               class="border rounded h-40 overflow-y-auto p-2 grid grid-cols-2 gap-1">
+            <!-- JS injecte 95 cases ici -->
+          </div>
         </div>
-        <label class="block">Leads livrés (total)<input type="number" id="leadsDelivered" readonly value="0" class="w-full border p-2 rounded bg-gray-50"></label>
-        <label class="block">Méthode de paiement
+
+        <label class="block">Leads livrés (total)<br>
+          <input type="number" id="leadsDelivered" readonly value="0"
+                 class="w-full border p-2 rounded bg-gray-50">
+        </label>
+
+        <label class="block">Méthode de paiement<br>
           <select id="paymentMethod" class="w-full border p-2 rounded">
             <option value="">-- Choisir --</option>
             <option>Carte bancaire</option>
@@ -51,18 +80,21 @@
             <option>Chèque</option>
           </select>
         </label>
-        <label class="block">Type de paiement
+
+        <label class="block">Type de paiement<br>
           <select id="paymentType" class="w-full border p-2 rounded">
             <option value="">-- Choisir --</option>
             <option>One-shot</option>
             <option>Abonnement</option>
           </select>
         </label>
+
         <div class="flex justify-end space-x-2">
           <button type="reset" class="px-4 py-2 bg-gray-300 rounded">Annuler</button>
           <button type="submit" id="saveBtn" class="px-4 py-2 bg-blue-600 text-white rounded">Enregistrer</button>
         </div>
       </form>
+
       <button id="exportCsv" class="mt-6 px-4 py-2 bg-green-500 text-white rounded">Exporter CSV</button>
     </aside>
 
@@ -71,9 +103,14 @@
       <table class="min-w-full text-sm">
         <thead class="bg-gray-100">
           <tr>
-            <th class="p-2">Prénom</th><th class="p-2">Nom</th><th class="p-2">Email</th>
-            <th class="p-2">Tél</th><th class="p-2">Société</th><th class="p-2">Dpts</th>
-            <th class="p-2">Leads</th><th class="p-2">Actions</th>
+            <th class="p-2">Prénom</th>
+            <th class="p-2">Nom</th>
+            <th class="p-2">Email</th>
+            <th class="p-2">Tél</th>
+            <th class="p-2">Société</th>
+            <th class="p-2">Dpts</th>
+            <th class="p-2">Leads</th>
+            <th class="p-2">Actions</th>
           </tr>
         </thead>
         <tbody id="clientsTableBody"></tbody>
@@ -81,13 +118,15 @@
     </main>
   </div>
 
-  <!-- Leaflet & Firebase SDKs -->
-  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <!-- Firebase & Leaflet SDKs -->
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+          integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+          crossorigin=""></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
   <script>
-    // Ta config Firebase
+    // Config Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyBOa5KcgBr7PkQKT6e_ftWORjbGzncY4Ck",
       authDomain: "lead-f9f71.firebaseapp.com",
@@ -100,7 +139,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // Liste complète des 95 départements
+    // Départements
     const departmentsList = [
       {"code":"01","nom":"Ain"},{"code":"02","nom":"Aisne"},{"code":"03","nom":"Allier"},
       {"code":"04","nom":"Alpes-de-Haute-Provence"},{"code":"05","nom":"Hautes-Alpes"},
@@ -137,7 +176,7 @@
       {"code":"94","nom":"Val-de-Marne"},{"code":"95","nom":"Val-d'Oise"}
     ];
 
-    // Génère les cases à cocher
+    // Génération des cases à cocher
     const cbContainer = document.getElementById('departmentsCheckboxes');
     departmentsList.forEach(d => {
       const label = document.createElement('label');
@@ -148,8 +187,105 @@
       cbContainer.append(label);
     });
 
-    // Reste du script CRUD + carte…
-  </script>
+    // CRUD Clients
+    const form = document.getElementById('clientForm');
+    const tbody = document.getElementById('clientsTableBody');
+    let editingId = null, clients = [];
 
+    async function loadClients() {
+      const snap = await db.collection('clients').get();
+      clients = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderTable();
+    }
+
+    function renderTable() {
+      tbody.innerHTML = '';
+      clients.forEach(c => {
+        const tr = document.createElement('tr'); tr.className = 'border-b';
+        tr.innerHTML = `
+          <td class="p-2">${c.firstName}</td>
+          <td class="p-2">${c.lastName}</td>
+          <td class="p-2">${c.email}</td>
+          <td class="p-2">${c.phone||''}</td>
+          <td class="p-2">${c.company||''}</td>
+          <td class="p-2">${(c.departments||[]).join(', ')}</td>
+          <td class="p-2 text-center">${c.leadsDelivered||0}</td>
+          <td class="p-2 space-x-1">
+            <button onclick="editClient('${c.id}')" class="text-yellow-500">✏️</button>
+            <button onclick="deleteClient('${c.id}')" class="text-red-500">🗑️</button>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const deps = Array.from(document.querySelectorAll('input[name="departments"]:checked'))
+                        .map(cb => cb.value);
+      const record = {
+        firstName: form.firstName.value.trim(),
+        lastName:  form.lastName.value.trim(),
+        email:     form.email.value.trim(),
+        phone:     form.phone.value.trim(),
+        company:   form.company.value.trim(),
+        departments: deps,
+        leadsDelivered: Number(form.leadsDelivered.value)||0,
+        paymentMethod: form.paymentMethod.value,
+        paymentType:   form.paymentType.value
+      };
+      if (editingId) {
+        await db.collection('clients').doc(editingId).set(record);
+        editingId = null;
+        form.querySelector('#saveBtn').textContent = 'Enregistrer';
+      } else {
+        await db.collection('clients').add(record);
+      }
+      form.reset();
+      loadClients();
+    });
+
+    window.deleteClient = async id => {
+      if (confirm('Supprimer ce client ?')) {
+        await db.collection('clients').doc(id).delete();
+        loadClients();
+      }
+    };
+
+    window.editClient = id => {
+      const c = clients.find(x=>x.id===id);
+      form.firstName.value = c.firstName;
+      form.lastName.value  = c.lastName;
+      form.email.value     = c.email;
+      form.phone.value     = c.phone||'';
+      form.company.value   = c.company||'';
+      form.leadsDelivered.value = c.leadsDelivered||0;
+      document.querySelectorAll('input[name="departments"]').forEach(cb => {
+        cb.checked = (c.departments||[]).includes(cb.value);
+      });
+      form.paymentMethod.value = c.paymentMethod||'';
+      form.paymentType.value   = c.paymentType||'';
+      editingId = id;
+      document.getElementById('formTitle').textContent = 'Modifier un client';
+      document.getElementById('saveBtn').textContent  = 'Sauvegarder';
+    };
+
+    document.getElementById('exportCsv').onclick = () => {
+      const header = ['Prénom','Nom','Email','Tél','Société','Dpts','Leads','Méthode','Type'].join(';');
+      const rows = clients.map(c => [
+        c.firstName, c.lastName, c.email, c.phone||'', c.company||'',
+        (c.departments||[]).join(','), c.leadsDelivered||0,
+        c.paymentMethod||'', c.paymentType||''
+      ].join(';'));
+      const csv = [header, ...rows].join('\n');
+      const blob = new Blob([csv], { type:'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download='clients.csv'; a.click();
+      URL.revokeObjectURL(url);
+    };
+
+    // Démarrage
+    loadClients();
+  </script>
 </body>
 </html>
+```
